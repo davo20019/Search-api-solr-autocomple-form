@@ -1,0 +1,8 @@
+name = "Custom Module for solr search form"
+description = "Custom Module to implement autosuggestion functionality in solr search form"
+package = Connect
+core = 7.x
+
+dependencies[] = search_api_solr
+
+files[] = sac_search_form.api.php

@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ *   Hooks executed in the install process
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function sac_search_form_schema() {
+  $schema['sac_cache_search'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+

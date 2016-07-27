@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function sac_search_form_menu() {
+	$items = array();
+
+  // Autocompletion path
+  $items['sac/autocomplete'] = array(
+    'title' => 'CP API autocomplete',
+    'page callback' => 'sac_search_form_autocomplete',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'sac_search_form.pages.inc',
+  );
+
+	return $items;
+}
+
+/**
+ * Custon form for Doctor search.
+ */
+function sac_search_form_main_form($form, &$form_state) {
+  $url_param = drupal_get_query_parameters();
+  if (isset($url_param['fulltext'])) {
+    $default = $url_param['fulltext'];
+  }
+  else {
+    $default = '';
+  }
+
+  $form['search_field'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $default,
+    '#attributes' => array(
+      'class' => array('small-12 columns', 'auto_submit'),
+      'placeholder' => t('Name, City, Zip, Address'),
+    ),
+    '#autocomplete_path' => 'sac/autocomplete',
+  );
+
+  $form['search_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t(''),
+    '#attributes' => array(
+      'class' => array('small-0 columns')
+    )
+  );
+
+  $form['#attached']['css'] = array(
+    array(
+      'type' => 'file',
+      'data' => drupal_get_path('module', 'sac_search_form') . '/css/sac_search_form.css',
+    ),
+  );
+  $form['#attached']['js'][] = drupal_get_path('module', 'sac_search_form') . '/js/sac_search_form.js';
+
+  return $form;
+}
+
+/**
+ * Submit handler for the custom form used for searching.
+ *
+ * @param type $form
+ * @param type $form_state
+ */
+function sac_search_form_main_form_submit($form, &$form_state) {
+
+  $text_data = ($form_state['values']['search_field'] !== '') ? $form_state['values']['search_field'] : '';
+
+  drupal_goto('search/all', array('query'=> array('fulltext' => $text_data)));
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function sac_search_form_entity_property_info_alter(&$info) {
+  $info['node']['properties']['autocomplete_field'] = array(
+    'label' => t('Autocomplete field'),
+    'description' => t('Autocomple field. It has all the information necessary.'),
+    'type' => 'text',
+    'sanitized' => TRUE,
+    'getter callback' => 'sac_search_form_autocomplete_field_getter',
+  );
+}
+
+/**
+ * Retrieve the autocomplete field.
+ */
+function sac_search_form_autocomplete_field_getter($item) {
+  // TODO: Add all the fields and in the format expected for the autocomplete
+  $node = node_load($item->nid);
+
+  $title = $node->title;
+
+  // TODO: Add more logic to have a good format
+  $output = $title;
+
+  return $output;
+}
